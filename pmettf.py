@@ -79,5 +79,12 @@ if (os.path.exists(CONVERSION_DIR)):
 
 os.mkdir(CONVERSION_DIR)
 
-for c in categories.keys():
-  os.mkdir(os.path.join(CONVERSION_DIR, c))
+for category, titles in categories.iteritems():
+  categoryDir = os.path.join(CONVERSION_DIR, category)
+  os.mkdir(categoryDir)
+
+  for title in titles:
+    titlePath = os.path.join(categoryDir, "%s.txt" % (title))
+
+    with open(titlePath, "w") as f:
+      pass
