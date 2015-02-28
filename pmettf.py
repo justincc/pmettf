@@ -6,7 +6,20 @@ import re
 import shutil
 import sys
 
+#################
+### CONSTANTS ###
+#################
 CONVERSION_DIR = "converted/"
+
+#################
+### FUNCTIONS ###
+#################
+def cleanString(dirtyString):
+  return dirtyString.strip().replace(",", "").replace(".", "").replace("'", "").replace(" ", "-").lower()
+
+############
+### MAIN ###
+############
 
 with open(sys.argv[1]) as f:
   contents = f.readlines()
@@ -15,17 +28,26 @@ with open(sys.argv[1]) as f:
 contents = [line[:-2] for line in contents]
 
 categories = {}
+titleIndex = 0
 
 for i in range(len(contents)):
+  # A blank line with no additional CR indicates the end of a record
   if contents[i] == "":
     if contents[i-1][-1] != '\r':
       rawCategory = contents[i-1]
-      rawCategory = rawCategory.replace(" ", "-").lower()
+      rawCategory = cleanString(rawCategory)
 
       if not rawCategory in categories:
-        categories[rawCategory] = 1
-      else:
-        categories[rawCategory] += 1
+        categories[rawCategory] = set()
+      
+      title = cleanString(contents[titleIndex])
+
+      print "title [%s]" % (title)
+    
+      categories[rawCategory].add(title)
+
+      # Next title will follow the category
+      titleIndex = i + 1
 
   # Line with just the extra \r
 #  if re.match('\r', contents[i]) and i > 2:
@@ -45,9 +67,13 @@ for i in range(len(contents)):
 
 print "Cateogries are:"
 
-for c, n in categories.iteritems():
-  print "%s: %s" % (c, n)
+for category, titles in categories.iteritems():
+  print "%s" % (category)
 
+  for title in titles:
+    print "  %s" % (title)
+
+# Create file tree
 if (os.path.exists(CONVERSION_DIR)):
   shutil.rmtree(CONVERSION_DIR)
 
