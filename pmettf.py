@@ -38,13 +38,17 @@ for i in range(len(contents)):
       rawCategory = cleanString(rawCategory)
 
       if not rawCategory in categories:
-        categories[rawCategory] = set()
+        categories[rawCategory] = []
       
       title = cleanString(contents[titleIndex])
 
       print "title [%s]" % (title)
+
+      # text body includes the title
+      text = contents[titleIndex:i-1]
+      text = [line.rstrip() for line in text]
     
-      categories[rawCategory].add(title)
+      categories[rawCategory].append({'title' : title, 'text' : text})
 
       # Next title will follow the category
       titleIndex = i + 1
@@ -67,11 +71,11 @@ for i in range(len(contents)):
 
 print "Cateogries are:"
 
-for category, titles in categories.iteritems():
+for category, memos in categories.iteritems():
   print "%s" % (category)
 
-  for title in titles:
-    print "  %s" % (title)
+  for memo in memos:
+    print "  %s" % (memo['title'])
 
 # Create file tree
 if (os.path.exists(CONVERSION_DIR)):
@@ -79,12 +83,13 @@ if (os.path.exists(CONVERSION_DIR)):
 
 os.mkdir(CONVERSION_DIR)
 
-for category, titles in categories.iteritems():
+for category, memos in categories.iteritems():
   categoryDir = os.path.join(CONVERSION_DIR, category)
   os.mkdir(categoryDir)
 
-  for title in titles:
-    titlePath = os.path.join(categoryDir, "%s.txt" % (title))
+  for memo in memos:
+    titlePath = os.path.join(categoryDir, "%s.txt" % (memo['title']))
 
     with open(titlePath, "w") as f:
-      pass
+      for line in memo['text']:
+        f.write("%s\n" % line)
